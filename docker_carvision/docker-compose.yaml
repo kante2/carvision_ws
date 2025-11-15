@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  carvision-noetic:
+    build: .
+    container_name: carvision-noetic
+
+    # ROS / rosbridge / MORAI 편의를 위해 host 네트워크
+    network_mode: host
+
+    # GPU 사용
+    gpus: all
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute
+
+      # X11 Forwarding
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+
+    volumes:
+      # X 소켓
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+      # MORAI 런처 (호스트 경로 유지)
+      - /home/kante/Downloads/MoraiLauncher_Lin:/mnt/MoraiLauncher_Lin:ro
+
+      # carvision_ws 전체를 컨테이너로 마운트
+      # (docker-compose.yaml 기준으로 한 칸 위 == /home/kante/carvision_ws)
+      - ..:/root/carvision_ws
+
+    # 컨테이너에서 기본 작업 디렉토리
+    working_dir: /root/carvision_ws
+
+    # 인터랙티브 사용 편의
+    stdin_open: true
+    tty: true
